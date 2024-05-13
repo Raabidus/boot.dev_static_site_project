@@ -1,36 +1,47 @@
 class HTMLNode:
-    def __init__(self, tag, value, children, props):
+    def __init__(self, tag=None, value=None, children=None, props=None):
         self.tag = tag
         self.value = value
         self.children = children
         self.props = props
-        
+
     def to_html(self):
-        raise NotImplementedError("to html not implemented")
-    
+        raise NotImplementedError("to_html method not implemented")
+
     def props_to_html(self):
-        if self.props == {"href": "https://www.google.com", "target": "_blank"}:
-            return self.props
-    
-    def __repr__(self) -> str:
-        print (self.tag, self.value, self.children, self.props)
+        if self.props is None:
+            return ""
+        props_html = ""
+        for prop in self.props:
+            props_html += f' {prop}="{self.props[prop]}"'
+        return props_html
+
+    def __repr__(self):
+        return f"HTMLNode({self.tag}, {self.value}, children: {self.children}, {self.props})"
+
 
 class LeafNode(HTMLNode):
-    def __init__(self, tag, value, children=None, props=None):
-        super().__init__(tag, value, children, props)
+    def __init__(self, tag, value, props=None):
+        super().__init__(tag, value, None, props)
 
-
-# tohle ddodělej debile
     def to_html(self):
-        if self.value in {None, ''}:
-            raise ValueError
-        elif self.tag == None:
+        if self.value is None:
+            raise ValueError("Invalid HTML: no value")
+        if self.tag is None:
             return self.value
-        else:
-            return f"<{self.tag}>{self.value}</{self.tag}>"
+        return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
 
+    def __repr__(self):
+        return f"LeafNode({self.tag}, {self.value}, {self.props})"
+    
+class ParentNode(HTMLNode):
+    def __init__(self, tag=None, value=None, children=None, props=None): #argument children by NEmělo být optional nevím jak na to
+        super().__init__(tag, None, children, props) #argument children by NEmělo být optional nevím jak na to
 
-
-a = LeafNode("p", "This is a paragraph of text.")
-LeafNode("a", "Click me!", {"href": "https://www.google.com"})
-print(a)            
+    def to_html(self):
+        if self.tag is None:
+            raise ValueError("Invalid tag: no tag")
+        if self.children is None:
+            raise ValueError("self.children is None")
+        #dopsat to_html dle boot.dev - Otherwise, it should return a string representing the HTML tag of the node and its children....
+        return super().to_html()
